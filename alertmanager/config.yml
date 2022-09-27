@@ -1,0 +1,12 @@
+templates:
+  - /etc/alertmanager/dingding.tmpl
+
+targets:
+  webhook:
+    url: https://oapi.dingtalk.com/robot/send?access_token=6e8a1394aa73c97016825d93a4645d815cc480f39b43b4b89f3b729245d6cc81 #修改为钉钉机器人的webhook
+    secret: SECfcf7336bb64f54d6868d31ab76803bfececc122852cdf4a7a88ef51544b18cd7 # 配置加签（申请的时候那串数字）             
+    message:
+      title: '{{ template "ops.title" . }}'  #  给这个webhook应用上 模板标题 （ops.title是我们模板文件中的title 可在下面给出的模板文件中看到）
+      text: '{{ template "ops.content" . }}'
+    mention:
+      all: true

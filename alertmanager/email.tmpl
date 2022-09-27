@@ -1,0 +1,41 @@
+{{ define "email.html" }}
+{{- if gt (len .Alerts.Firing) 0 -}}
+<h2>告警</h2>
+<table border="5">
+    <tr><td>报警项</td>
+        <td>实例</td>
+        <td>报警详情</td>
+        <td>报警级别</td>
+        <td>开始时间</td>
+    </tr>
+    {{ range $i, $alert := .Alerts }}
+        <tr><td>{{ index $alert.Labels "alertname" }}</td>
+            <td style="color:#32CD32" >{{ index $alert.Labels "instance" }}</td>
+            <td>{{ index $alert.Annotations "description" }}</td>
+            <td>{{ $alert.Labels.severity }}</td>
+            <td style="color:#FF7F50">{{ $alert.StartsAt.Local.Format "2006-01-02 15:04:05" }}</td>
+        </tr>
+    {{ end }}
+</table>
+{{ end }}
+{{- if gt (len .Alerts.Resolved) 0 -}}
+<h2>已经恢复</h2>
+<table border="5">
+    <tr><td>报警项</td>
+        <td>实例</td>
+        <td>报警详情</td>
+        <td>报警级别</td>
+        <td>开始时间</td>
+		<td>恢复时间</td>
+    </tr>
+    {{ range $i, $alert := .Alerts }}
+        <tr><td>{{ index $alert.Labels "alertname" }}</td>
+            <td style="color:#32CD32">{{ index $alert.Labels "instance" }}</td>
+            <td>{{ index $alert.Annotations "description" }}</td>
+            <td>{{ $alert.Labels.severity }}</td>
+            <td style="color:#FF7F50">{{ $alert.StartsAt.Local.Format "2006-01-02 15:04:05" }}</td>
+            <td style="color:#FF7F50">{{ $alert.EndsAt.Local.Format "2006-01-02 15:04:05" }}</td>
+        </tr>
+    {{ end }}
+</table>
+{{ end }}{{- end }}

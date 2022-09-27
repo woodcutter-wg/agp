@@ -1,0 +1,27 @@
+{{ define "wechat.message" }}
+{{- if gt (len .Alerts.Firing) 0 -}}
+{{- range $index, $alert := .Alerts -}}
+{{- if eq $index 0 -}}
+# 报警项: {{ $alert.Labels.alertname }}
+{{- end }}
+> `**===告警详情===**` 
+> 告警级别: {{ $alert.Labels.severity }}
+> 告警详情: <font color="comment">{{ index $alert.Annotations "description" }}{{ $alert.Annotations.message }}</font>
+> 故障时间: <font color="warning">{{ $alert.StartsAt.Local.Format "2006-01-02 15:04:05" }}</font>
+> 故障实例: <font color="info">{{ $alert.Labels.instance }}</font>
+{{- end }}
+{{- end }}
+{{- if gt (len .Alerts.Resolved) 0 -}}
+{{- range $index, $alert := .Alerts -}}
+{{- if eq $index 0 -}}
+# 恢复项: {{ $alert.Labels.alertname }}
+{{- end }}
+> `**===恢复详情===**` 
+> 告警级别: {{ $alert.Labels.severity }}
+> 告警详情: <font color="comment">{{ index $alert.Annotations "description" }}{{ $alert.Annotations.message }}</font>
+> 故障时间: <font color="warning">{{ $alert.StartsAt.Local.Format "2006-01-02 15:04:05" }}</font>
+> 恢复时间: <font color="warning">{{ $alert.EndsAt.Local.Format "2006-01-02 15:04:05" }}</font>
+> 故障实例: <font color="info">{{ $alert.Labels.instance }}</font>
+{{- end }}
+{{- end }}
+{{- end }}

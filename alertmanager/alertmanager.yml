@@ -1,0 +1,44 @@
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: 'smtp.qiye.163.com:465'             #邮箱smtp服务器代理，启用SSL发信, 端口一般是465
+  smtp_from: 'user@163.com'              #发送邮箱名称
+  smtp_auth_username: 'user@163.com'              #邮箱名称
+  smtp_auth_password: 'password'                #邮箱密码或授权码
+  smtp_require_tls: false
+
+templates:
+  - '/etc/alertmanager/*.tmpl'  #告警模板位置
+
+route:
+  receiver: 'default'  # 根据告警规则组名进行分组
+  group_wait: 10s # 分组内第一个告警等待时间，10s内如有第二个告警会合并一个告警
+  group_interval: 1m # 发送新告警间隔时间
+  repeat_interval: 1h #重复告警间隔发送时间，如果没处理过多久再次发送一次
+  group_by: ['alertname'] 
+ 
+inhibit_rules:
+- source_match:
+    severity: 'critical'
+  target_match:
+    severity: 'warning'
+  equal: ['alertname', 'instance']
+  
+receivers:
+- name: 'default'
+  email_configs:
+  - to: 'receiver@163.com'
+    send_resolved: true
+    headers: { Subject: " 【监控告警】 {{ .CommonLabels.alertname }} " } #标题
+    html: '{{ template "alertsList.html" . }}' #模板
+    
+  webhook_configs:
+  - url: 'http://dingtalk:8060/dingtalk/webhook/send'
+    send_resolved: true  # 在恢复后是否发送恢复消息给接收人
+
+  wechat_configs:
+  - send_resolved: true
+    message: '{{ template "wechat.default.message" . }}'
+    to_party: '2'         # 企业微信中创建的接收告警的部门【告警机器人】的部门ID
+    agent_id: '100022222'     # 企业微信中创建的应用的ID
+    message_type: markdown #改变格式
+    api_secret: 'awgJcJPA'      # 企业微信中，应用的Secret

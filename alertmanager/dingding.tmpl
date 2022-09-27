@@ -1,0 +1,45 @@
+{{ define "__subject" }}
+[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]
+{{ end }}
+ 
+ 
+{{ define "__alert_list" }}{{ range . }}
+---
+    **告警类型**: {{ .Labels.alertname }} 
+    **告警级别**: {{ .Labels.severity }}
+    **故障主机**: {{ .Labels.instance }} 
+    **告警信息**: {{ .Annotations.description }}
+    **触发时间**: {{ (.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}  
+{{ end }}{{ end }}
+ 
+{{ define "__resolved_list" }}{{ range . }}
+---
+    **告警类型**: {{ .Labels.alertname }} 
+    **告警级别**: {{ .Labels.severity }}
+    **故障主机**: {{ .Labels.instance }} 
+    **触发时间**: {{ (.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}  
+    **恢复时间**: {{ (.EndsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}
+{{ end }}{{ end }}
+ 
+ 
+{{ define "ops.title" }}
+{{ template "__subject" . }}
+{{ end }}
+ 
+{{ define "ops.content" }}
+{{ if gt (len .Alerts.Firing) 0 }}
+**====侦测到{{ .Alerts.Firing | len  }}个故障====**
+{{ template "__alert_list" .Alerts.Firing }}
+---
+{{ end }}
+ 
+{{ if gt (len .Alerts.Resolved) 0 }}
+**====恢复{{ .Alerts.Resolved | len  }}个故障====**
+{{ template "__resolved_list" .Alerts.Resolved }}
+{{ end }}
+{{ end }}
+ 
+{{ define "ops.link.title" }}{{ template "ops.title" . }}{{ end }}
+{{ define "ops.link.content" }}{{ template "ops.content" . }}{{ end }}
+{{ template "ops.title" . }}
+{{ template "ops.content" . }}
